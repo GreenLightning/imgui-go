@@ -2,6 +2,7 @@ package imgui
 
 // #include "wrapper/Docking.h"
 import "C"
+import "unsafe"
 
 type ID uint
 
@@ -56,6 +57,15 @@ func DockBuilderSetNodeSize(nodeID ID, size Vec2) {
 
 func DockBuilderAddNode(nodeID ID, flags DockNodeFlags) ID {
 	return ID(C.iggDockBuilderAddNode(C.IggID(nodeID), C.int(flags)))
+}
+
+func DockBuilderSplitNode(nodeID ID, splitDir Dir, sizeRatioForNodeAtDir float32) (nodeIDAtDir ID, nodeIDAtOppositeDir ID) {
+	var cNodeAtDir, cNodeAtOppositeDir C.uint
+	C.iggDockBuilderSplitNode(C.IggID(nodeID), C.int(splitDir), C.float(sizeRatioForNodeAtDir),
+		(*C.uint)(unsafe.Pointer(&cNodeAtDir)),
+		(*C.uint)(unsafe.Pointer(&cNodeAtOppositeDir)),
+	)
+	return ID(cNodeAtDir), ID(cNodeAtOppositeDir)
 }
 
 func DockBuilderFinish(rootID ID) {
